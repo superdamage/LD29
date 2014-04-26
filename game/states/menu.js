@@ -19,6 +19,7 @@ Menu.prototype = {
 
     this.sprite.angle = -20;
     this.game.add.tween(this.sprite).to({angle: 20}, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
+
   },
   update: function() {
     if(this.game.input.activePointer.justPressed()) {
