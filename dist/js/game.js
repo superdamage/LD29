@@ -12,11 +12,71 @@ window.onload = function () {
   game.state.add('menu', require('./states/menu'));
   game.state.add('play', require('./states/play'));
   game.state.add('preload', require('./states/preload'));
+  game.state.add('surface', require('./states/surface'));
   
 
   game.state.start('boot');
 };
-},{"./states/boot":2,"./states/gameover":3,"./states/intro":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
+},{"./states/boot":4,"./states/gameover":5,"./states/intro":6,"./states/menu":7,"./states/play":8,"./states/preload":9,"./states/surface":10}],2:[function(require,module,exports){
+'use strict';
+
+var Ranger = function(game, x, y, frame) {
+  Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
+  this.anchor.setTo(0.5,0.5);
+};
+
+Ranger.prototype = Object.create(Phaser.Sprite.prototype);
+Ranger.prototype.constructor = Ranger;
+
+Ranger.prototype.update = function() {
+
+};
+
+module.exports = Ranger;
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+var Squad = function(game, x, y, frame) {
+    Phaser.Sprite.call(this, game, x, y, 'crosshair', frame);
+    this.anchor.setTo(0.5,0.5);
+
+    this.moveSpeed = 600;
+    this.bulletSpeed = 1000;
+
+    this.game.physics.arcade.enableBody(this);
+
+    this.leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
+    this.rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
+    this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
+    this.downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
+
+};
+
+Squad.prototype = Object.create(Phaser.Sprite.prototype);
+Squad.prototype.constructor = Squad;
+
+Squad.prototype.update = function() {
+
+    this.body.velocity.x = this.body.velocity.y = 0;
+
+    if(this.leftKey.isDown) {
+        this.body.velocity.x = -this.moveSpeed;
+    }
+    if(this.rightKey.isDown) {
+        this.body.velocity.x = this.moveSpeed;
+    }
+    if(this.downKey.isDown) {
+        this.body.velocity.y = this.moveSpeed;
+    }
+    if(this.upKey.isDown) {
+        this.body.velocity.y = -this.moveSpeed;
+    }
+
+}
+module.exports = Squad;
+
+},{}],4:[function(require,module,exports){
 
 'use strict';
 
@@ -35,7 +95,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],3:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -63,7 +123,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 function Intro() {
     this.logo = null;
@@ -89,9 +149,9 @@ Intro.prototype = {
 
     onBounceComplete: function(){
 
-        this.add.tween(this.logo).to({alpha:0},400, Phaser.Easing.Cubic.Out,true,3000).onComplete.add(this.onAlphaComplete,this);
+        this.add.tween(this.logo).to({alpha:0},400, Phaser.Easing.Cubic.Out,true,2000).onComplete.add(this.onAlphaComplete,this);
 
-    }, 
+    },
 
     onAlphaComplete: function(){
 
@@ -102,7 +162,7 @@ Intro.prototype = {
 
 module.exports = Intro;
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -113,29 +173,30 @@ Menu.prototype = {
   },
   create: function() {
     var style = { font: '65px Arial', fill: '#ffffff', align: 'center'};
-    this.sprite = this.game.add.sprite(this.game.world.centerX, 138, 'yeoman');
-    this.sprite.anchor.setTo(0.5, 0.5);
 
-    this.titleText = this.game.add.text(this.game.world.centerX, 300, '\'Allo, \'Allo!', style);
+    //this.sprite = this.game.add.sprite(this.game.world.centerX, 138, 'yeoman');
+    //this.sprite.anchor.setTo(0.5, 0.5);
+
+    this.titleText = this.game.add.text(this.game.world.centerX, 300, 'SUBSURFACE\nRANGER SQUAD', style);
     this.titleText.anchor.setTo(0.5, 0.5);
 
-    this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'Click anywhere to play "Click The Yeoman Logo"', { font: '16px Arial', fill: '#ffffff', align: 'center'});
+    this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'Click To Start', { font: '16px Arial', fill: '#ffffff', align: 'center'});
     this.instructionsText.anchor.setTo(0.5, 0.5);
 
-    this.sprite.angle = -20;
-    this.game.add.tween(this.sprite).to({angle: 20}, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
+    //this.sprite.angle = -20;
+    //this.game.add.tween(this.sprite).to({angle: 20}, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
 
   },
   update: function() {
     if(this.game.input.activePointer.justPressed()) {
-      this.game.state.start('play');
+      this.game.state.start('surface');
     }
   }
 };
 
 module.exports = Menu;
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
   'use strict';
   function Play() {}
@@ -162,7 +223,7 @@ module.exports = Menu;
   };
   
   module.exports = Play;
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 'use strict';
 function Preload() {
@@ -177,8 +238,11 @@ Preload.prototype = {
 
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
     this.load.setPreloadSprite(this.asset);
-    this.load.image('yeoman', 'assets/yeoman-logo.png');
+    //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
+    this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
+    this.load.image('ranger', 'assets/ranger_masked.png');
+    this.load.image('crosshair', 'assets/crosshair.png');
 
   },
   create: function() {
@@ -186,7 +250,9 @@ Preload.prototype = {
   },
   update: function() {
     if(!!this.ready) {
-      this.game.state.start('intro');
+      //this.game.state.start('intro');
+
+        this.game.state.start('menu');
     }
   },
   onLoadComplete: function() {
@@ -196,4 +262,59 @@ Preload.prototype = {
 
 module.exports = Preload;
 
-},{}]},{},[1])
+},{}],10:[function(require,module,exports){
+'use strict';
+
+var Ranger= require('../prefabs/ranger');
+var Squad= require('../prefabs/squad');
+
+function Surface() {
+    this.land = null;
+    //this.player = null;
+    this.squad = null;
+    this.worldSize = 3;
+}
+
+Surface.prototype = {
+    create: function() {
+
+
+
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+
+        //this.land = this.game.add.tileSprite(0, 0, this.game.width*3, this.game.height*3, 'surface_tile');
+
+
+
+        this.land = this.game.add.tileSprite(0, 0, this.game.width*this.worldSize, this.game.height*this.worldSize, 'surface_tile');
+        //this.land.anchor.setTo(0.5, 0.5);
+
+
+        this.game.world.setBounds(0, 0, this.game.width*this.worldSize, this.game.height*this.worldSize);
+
+
+
+
+        this.squad = new Squad(this.game,this.game.world.width/2,this.game.world.height/2);
+        this.game.add.existing(this.squad);
+
+
+
+        this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
+
+        //this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
+
+
+        //this.squad = Ranger(this.game,0, 0);
+        //this.game.add.existing(this.squad);
+
+
+    },
+    update: function() {
+
+    }
+};
+
+module.exports = Surface;
+},{"../prefabs/ranger":2,"../prefabs/squad":3}]},{},[1])

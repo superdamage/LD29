@@ -11,6 +11,7 @@ window.onload = function () {
   game.state.add('menu', require('./states/menu'));
   game.state.add('play', require('./states/play'));
   game.state.add('preload', require('./states/preload'));
+  game.state.add('surface', require('./states/surface'));
   
 
   game.state.start('boot');
