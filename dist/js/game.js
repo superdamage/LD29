@@ -91,7 +91,7 @@ Intro.prototype = {
 
         this.add.tween(this.logo).to({alpha:0},400, Phaser.Easing.Cubic.Out,true,3000).onComplete.add(this.onAlphaComplete,this);
 
-    },
+    }, 
 
     onAlphaComplete: function(){
 
