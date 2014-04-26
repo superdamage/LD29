@@ -8,6 +8,7 @@ window.onload = function () {
   // Game States
   game.state.add('boot', require('./states/boot'));
   game.state.add('gameover', require('./states/gameover'));
+  game.state.add('intro', require('./states/intro'));
   game.state.add('menu', require('./states/menu'));
   game.state.add('play', require('./states/play'));
   game.state.add('preload', require('./states/preload'));
@@ -15,7 +16,7 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":2,"./states/gameover":3,"./states/menu":4,"./states/play":5,"./states/preload":6}],2:[function(require,module,exports){
+},{"./states/boot":2,"./states/gameover":3,"./states/intro":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
 
 'use strict';
 
@@ -63,6 +64,45 @@ GameOver.prototype = {
 module.exports = GameOver;
 
 },{}],4:[function(require,module,exports){
+'use strict';
+function Intro() {
+    this.logo = null;
+}
+
+Intro.prototype = {
+
+    create: function() {
+
+        this.logo = this.game.add.sprite(this.game.width/2, this.game.height/2, 'superdamage');
+        this.logo.anchor.setTo(0.5, 0.5);
+
+        this.logo.scale.x = this.logo.scale.y = 0.2;
+        this.add.tween(this.logo.scale).to({x:1,y:1},500, Phaser.Easing.Back.Out,true).onComplete.add(this.onBounceComplete,this);
+
+    },
+
+    update: function() {
+        if(this.game.input.activePointer.justPressed()) {
+            //this.game.state.start('menu');
+        }
+    },
+
+    onBounceComplete: function(){
+
+        this.add.tween(this.logo).to({alpha:0},400, Phaser.Easing.Cubic.Out,true,3000).onComplete.add(this.onAlphaComplete,this);
+
+    }, 
+
+    onAlphaComplete: function(){
+
+        this.game.state.start('menu');
+    }
+
+};
+
+module.exports = Intro;
+
+},{}],5:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -84,6 +124,7 @@ Menu.prototype = {
 
     this.sprite.angle = -20;
     this.game.add.tween(this.sprite).to({angle: 20}, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
+
   },
   update: function() {
     if(this.game.input.activePointer.justPressed()) {
@@ -94,7 +135,7 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
   'use strict';
   function Play() {}
@@ -121,12 +162,12 @@ module.exports = Menu;
   };
   
   module.exports = Play;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 'use strict';
 function Preload() {
-  this.asset = null;
-  this.ready = false;
+    this.asset = null;
+    this.ready = false;
 }
 
 Preload.prototype = {
@@ -137,6 +178,7 @@ Preload.prototype = {
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
     this.load.setPreloadSprite(this.asset);
     this.load.image('yeoman', 'assets/yeoman-logo.png');
+    this.load.image('superdamage', 'assets/superdamage.png');
 
   },
   create: function() {
@@ -144,7 +186,7 @@ Preload.prototype = {
   },
   update: function() {
     if(!!this.ready) {
-      this.game.state.start('menu');
+      this.game.state.start('intro');
     }
   },
   onLoadComplete: function() {
