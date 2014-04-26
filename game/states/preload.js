@@ -12,8 +12,11 @@ Preload.prototype = {
 
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
     this.load.setPreloadSprite(this.asset);
-    this.load.image('yeoman', 'assets/yeoman-logo.png');
+    //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
+    this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
+    this.load.image('ranger', 'assets/ranger_masked.png');
+    this.load.image('crosshair', 'assets/crosshair.png');
 
   },
   create: function() {
@@ -21,7 +24,9 @@ Preload.prototype = {
   },
   update: function() {
     if(!!this.ready) {
-      this.game.state.start('intro');
+      //this.game.state.start('intro');
+
+        this.game.state.start('menu');
     }
   },
   onLoadComplete: function() {
