@@ -1,11 +1,14 @@
 'use strict';
 
+var Ranger= require('./ranger');
+
 var Squad = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'crosshair', frame);
     this.anchor.setTo(0.5,0.5);
 
     this.moveSpeed = 600;
     this.bulletSpeed = 1000;
+    this.members = null;
 
     this.game.physics.arcade.enableBody(this);
 
@@ -13,6 +16,8 @@ var Squad = function(game, x, y, frame) {
     this.rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
     this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
     this.downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
+
+    this.maxSquadSize = 0;
 
 };
 
@@ -37,4 +42,20 @@ Squad.prototype.update = function() {
     }
 
 }
+
+Squad.prototype.createMembers = function(squadSize){
+    this.maxSquadSize = 1;
+    this.members = this.game.add.group();
+    for(var i=0; i<this.maxSquadSize; i++){
+
+        this.addRanger();
+
+    }
+}
+
+Squad.prototype.addRanger = function(){
+    var ranger = new Ranger(this.game,this.x,this.y,null,this);
+    this.members.add(ranger);
+}
+
 module.exports = Squad;
