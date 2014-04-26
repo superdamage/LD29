@@ -20,16 +20,21 @@ window.onload = function () {
 },{"./states/boot":4,"./states/gameover":5,"./states/intro":6,"./states/menu":7,"./states/play":8,"./states/preload":9,"./states/surface":10}],2:[function(require,module,exports){
 'use strict';
 
-var Ranger = function(game, x, y, frame) {
-  Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
-  this.anchor.setTo(0.5,0.5);
+var Ranger = function(game, x, y, frame,squad) {
+
+    Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
+    this.anchor.setTo(0.5,0.5);
+    this.squad= squad;
 };
 
 Ranger.prototype = Object.create(Phaser.Sprite.prototype);
 Ranger.prototype.constructor = Ranger;
 
 Ranger.prototype.update = function() {
+    //console.log(this.squad.x);
 
+    this.x += (this.squad.x-this.x)/10;
+    this.y += (this.squad.y-this.y)/10;
 };
 
 module.exports = Ranger;
@@ -37,12 +42,15 @@ module.exports = Ranger;
 },{}],3:[function(require,module,exports){
 'use strict';
 
+var Ranger= require('./ranger');
+
 var Squad = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'crosshair', frame);
     this.anchor.setTo(0.5,0.5);
 
     this.moveSpeed = 600;
     this.bulletSpeed = 1000;
+    this.members = null;
 
     this.game.physics.arcade.enableBody(this);
 
@@ -50,6 +58,8 @@ var Squad = function(game, x, y, frame) {
     this.rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
     this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
     this.downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
+
+    this.maxSquadSize = 0;
 
 };
 
@@ -74,9 +84,25 @@ Squad.prototype.update = function() {
     }
 
 }
+
+Squad.prototype.createMembers = function(squadSize){
+    this.maxSquadSize = 1;
+    this.members = this.game.add.group();
+    for(var i=0; i<this.maxSquadSize; i++){
+
+        this.addRanger();
+
+    }
+}
+
+Squad.prototype.addRanger = function(){
+    var ranger = new Ranger(this.game,this.x,this.y,null,this);
+    this.members.add(ranger);
+}
+
 module.exports = Squad;
 
-},{}],4:[function(require,module,exports){
+},{"./ranger":2}],4:[function(require,module,exports){
 
 'use strict';
 
@@ -293,15 +319,13 @@ Surface.prototype = {
 
         this.game.world.setBounds(0, 0, this.game.width*this.worldSize, this.game.height*this.worldSize);
 
-
-
-
         this.squad = new Squad(this.game,this.game.world.width/2,this.game.world.height/2);
+
+        this.squad.createMembers();
+
         this.game.add.existing(this.squad);
-
-
-
         this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
+
 
         //this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
 

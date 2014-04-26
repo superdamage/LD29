@@ -28,15 +28,13 @@ Surface.prototype = {
 
         this.game.world.setBounds(0, 0, this.game.width*this.worldSize, this.game.height*this.worldSize);
 
-
-
-
         this.squad = new Squad(this.game,this.game.world.width/2,this.game.world.height/2);
+
+        this.squad.createMembers();
+
         this.game.add.existing(this.squad);
-
-
-
         this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
+
 
         //this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
 
