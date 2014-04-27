@@ -182,6 +182,12 @@ var Squad = function(game, x, y, frame) {
 
     this.game.physics.arcade.enableBody(this);
 
+    this.body.maxVelocity.x = this.moveSpeed;
+    this.body.maxVelocity.y = this.moveSpeed;
+
+    this.body.drag.x = this.moveSpeed*10;
+    this.body.drag.y = this.moveSpeed*10;
+
     this.leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
     this.rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
     this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -401,11 +407,14 @@ Preload.prototype = {
     this.load.setPreloadSprite(this.asset);
     //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
-    this.load.image('surface_tile', 'assets/ground_tile0003.png');
+    this.load.image('surface_tile', 'assets/ground_tile0003_v2.png');
     //this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
+
+    this.game.load.image('dark', '/assets/illumination_dark0001.png');
+    this.game.load.image('light', '/assets/illumination_light0001.png');
 
   },
   create: function() {
@@ -476,6 +485,16 @@ Surface.prototype = {
             this.props.add(rock);
 
         }
+
+
+        //this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
+        var lightSprite = this.game.add.image(0, 0, 'light');
+        lightSprite.fixedToCamera = true;
+        lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+        var darkSprite = this.game.add.image(0, 0, 'dark');
+        darkSprite.fixedToCamera = true;
+        darkSprite.blendMode = Phaser.blendModes.MULTIPLY;
 
 
 

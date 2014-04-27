@@ -13,6 +13,12 @@ var Squad = function(game, x, y, frame) {
 
     this.game.physics.arcade.enableBody(this);
 
+    this.body.maxVelocity.x = this.moveSpeed;
+    this.body.maxVelocity.y = this.moveSpeed;
+
+    this.body.drag.x = this.moveSpeed*10;
+    this.body.drag.y = this.moveSpeed*10;
+
     this.leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
     this.rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
     this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
