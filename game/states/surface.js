@@ -39,7 +39,7 @@ Surface.prototype = {
 
         this.props = this.game.add.group();
 
-        for(var i=0; i<100; i++){
+        for(var i=0; i<60; i++){
 
             var rockPos = new Phaser.Point(0,0);
             rockPos.x = Math.random()*this.game.world.width;
@@ -56,6 +56,7 @@ Surface.prototype = {
     update: function() {
 
         this.game.physics.arcade.collide(this.squad.members, this.props, this.propCollisionHandler, null, this);
+        this.game.physics.arcade.collide(this.squad.members, this.squad.members, null, null, this);
     },
 
     propCollisionHandler: function(squadMember, prop){

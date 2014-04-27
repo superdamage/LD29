@@ -23,21 +23,37 @@ window.onload = function () {
 var Ranger = function(game, x, y, frame,squad,index) {
 
     Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
+
+    this.animations.add('walk_front', Phaser.Animation.generateFrameNames('crew_member_front', 0, 7, '.png', 4), 15, true);
+    this.animations.add('walk_back', Phaser.Animation.generateFrameNames('crew_member_back', 0, 7, '.png', 4), 15, true);
+    this.animations.add('walk_left', Phaser.Animation.generateFrameNames('crew_member_left', 0, 4, '.png', 4), 15, true);
+    this.animations.add('walk_right', Phaser.Animation.generateFrameNames('crew_member_right', 0, 4, '.png', 4), 15, true);
+    this.animations.add('idle', Phaser.Animation.generateFrameNames('crew_member_front', 0, 1, '.png', 4), 0, true);
+
+    this.animations.play('idle');
+
     this.anchor.setTo(0.5,0.5);
     this.squad= squad;
 
-    this.moveSpeed = 700;
+    this.moveSpeed = 600;
     this.bulletSpeed = 1000;
     this.members = null;
 
 
+
     this.lagZone = 100;
 
-    this.stancePosRadius = 50;
+    this.stancePosRadius = 35;
 
     this.index = index;
 
     this.game.physics.arcade.enableBody(this);
+
+    this.body.maxVelocity.x = this.moveSpeed;
+    this.body.maxVelocity.y = this.moveSpeed;
+
+    this.body.drag.x = 1000;
+    this.body.drag.y = 1000;
 
     this.body.collideWorldBounds = true;
 };
@@ -84,8 +100,36 @@ Ranger.prototype.update = function() {
         this.body.velocity.y = -this.moveSpeed*yDif;
     }
 
-    //this.x += (this.squad.x-this.x)/10;
-    //this.y += (this.squad.y-this.y)/10;
+    var minVelocity = this.moveSpeed*0.1;
+    if( Math.abs(this.body.velocity.x) < minVelocity && Math.abs(this.body.velocity.y) < minVelocity){
+        this.body.velocity.x = this.body.velocity.y = 0;
+            this.animations.play('idle');
+
+    }else{
+
+
+        var verticalVelocity = this.body.velocity.y;
+        var horizontalVelocity = this.body.velocity.x;
+
+        if(Math.abs(horizontalVelocity)>Math.abs(verticalVelocity)){
+            if(horizontalVelocity>0){
+                this.animations.play('walk_right');
+            }else{
+                this.animations.play('walk_left');
+            }
+        }else{
+            if(this.body.velocity.y >0){
+                this.animations.play('walk_front');
+            }else{
+                this.animations.play('walk_back');
+            }
+        }
+    }
+
+    //animations
+    //if(this.body.velocity.x > )
+    //if()
+
 };
 
 module.exports = Ranger;
@@ -345,7 +389,8 @@ Preload.prototype = {
     //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
     this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
-    this.load.image('ranger', 'assets/ranger_masked.png');
+    //this.load.image('ranger', 'assets/ranger_masked.png');
+    this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
 
@@ -409,7 +454,7 @@ Surface.prototype = {
 
         this.props = this.game.add.group();
 
-        for(var i=0; i<100; i++){
+        for(var i=0; i<60; i++){
 
             var rockPos = new Phaser.Point(0,0);
             rockPos.x = Math.random()*this.game.world.width;
@@ -426,6 +471,7 @@ Surface.prototype = {
     update: function() {
 
         this.game.physics.arcade.collide(this.squad.members, this.props, this.propCollisionHandler, null, this);
+        this.game.physics.arcade.collide(this.squad.members, this.squad.members, null, null, this);
     },
 
     propCollisionHandler: function(squadMember, prop){
