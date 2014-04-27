@@ -37,7 +37,7 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.anchor.setTo(0.5,0.5);
     this.squad= squad;
 
-    this.moveSpeed = 600;
+    this.moveSpeed = squad.moveSpeed;
     this.bulletSpeed = 1000;
     this.members = null;
 
@@ -54,8 +54,8 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.body.maxVelocity.x = this.moveSpeed;
     this.body.maxVelocity.y = this.moveSpeed;
 
-    this.body.drag.x = 1000;
-    this.body.drag.y = 1000;
+    this.body.drag.x = this.moveSpeed*10;
+    this.body.drag.y = this.moveSpeed*10;
 
     this.body.collideWorldBounds = true;
 };
@@ -102,7 +102,7 @@ Ranger.prototype.update = function() {
         this.body.velocity.y = -this.moveSpeed*yDif;
     }
 
-    var minVelocity = this.moveSpeed*0.1;
+    var minVelocity = this.moveSpeed*0.3;
 
     if( Math.abs(this.body.velocity.x) < minVelocity && Math.abs(this.body.velocity.y) < minVelocity){
         //this.body.velocity.x = this.body.velocity.y = 0;
@@ -172,7 +172,7 @@ var Squad = function(game, x, y, frame) {
     this.alpha = 0;
     this.anchor.setTo(0.5,0.5);
 
-    this.moveSpeed = 600;
+    this.moveSpeed = 300;
     this.bulletSpeed = 1000;
     this.members = null;
 

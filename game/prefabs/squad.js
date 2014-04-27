@@ -7,7 +7,7 @@ var Squad = function(game, x, y, frame) {
     this.alpha = 0;
     this.anchor.setTo(0.5,0.5);
 
-    this.moveSpeed = 600;
+    this.moveSpeed = 300;
     this.bulletSpeed = 1000;
     this.members = null;
 
