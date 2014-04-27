@@ -19,6 +19,7 @@ Preload.prototype = {
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
+    this.load.image('bullet', 'assets/bullet.png');
 
     this.game.load.image('dark', 'assets/illumination_dark0001.png');
     this.game.load.image('light', 'assets/illumination_light0001.png');

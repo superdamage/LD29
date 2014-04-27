@@ -21,7 +21,7 @@ var Ranger = function(game, x, y, frame,squad,index) {
 
     this.moveSpeed = squad.moveSpeed*1.2;
 
-    this.bulletSpeed = 50;
+    this.bulletSpeed = 1000;
     this.bullets = this.game.add.group();
     this.bullets.enableBody = true;
     this.bullets.bodyType = Phaser.Physics.Arcade.Body;
