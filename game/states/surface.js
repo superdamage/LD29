@@ -34,6 +34,7 @@ Surface.prototype = {
 
         this.squad = new Squad(this.game,this.game.world.width/2,this.game.world.height/2);
 
+
         this.squad.createMembers();
 
         this.game.add.existing(this.squad);
@@ -55,6 +56,8 @@ Surface.prototype = {
         this.crosshair.fixedToCamera = true;
         this.crosshair.blendMode = Phaser.blendModes.DARKEN;
         this.crosshair.anchor.setTo(0.5,0.5);
+
+        this.squad.crosshair = this.crosshair;
 
         // LIGHT EFFECTS
 
