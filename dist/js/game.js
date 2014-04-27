@@ -17,8 +17,49 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":5,"./states/gameover":6,"./states/intro":7,"./states/menu":8,"./states/play":9,"./states/preload":10,"./states/surface":11}],2:[function(require,module,exports){
+},{"./states/boot":6,"./states/gameover":7,"./states/intro":8,"./states/menu":9,"./states/play":10,"./states/preload":11,"./states/surface":12}],2:[function(require,module,exports){
 'use strict';
+
+var Bullet = function(game, x, y, frame) {
+
+    this.size = 20;
+    this.color = '#925bb2';
+
+    this.bmd = game.add.bitmapData(this.size, this.size);
+    this.createTexture();
+    Phaser.Sprite.call(this, game, x, y, this.bmd);
+    this.checkWorldBounds = true;
+    this.outOfBoundsKill = true;
+
+};
+
+Bullet.prototype = Object.create(Phaser.Sprite.prototype);
+Bullet.prototype.constructor = Bullet;
+
+Bullet.prototype.setColor = function(color) {
+    this.color = color;
+    this.createTexture();
+};
+
+Bullet.prototype.createTexture = function() {
+    this.bmd.clear();
+    this.bmd.ctx.beginPath();
+
+    this.bmd.ctx.arc(0, 0, this.size, 0, Math.PI*2, true);
+    //this.bmd.ctx.rect(0,0,this.size,this.size);
+    this.bmd.ctx.fillStyle = this.color;
+    this.bmd.ctx.fill();
+    this.bmd.ctx.closePath();
+    this.bmd.render();
+    this.bmd.refreshBuffer();
+};
+
+module.exports = Bullet;
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+var Bullet= require('./bullet');
 
 var Ranger = function(game, x, y, frame,squad,index) {
 
@@ -38,7 +79,15 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.squad= squad;
 
     this.moveSpeed = squad.moveSpeed*1.2;
-    this.bulletSpeed = 1000;
+
+    this.bulletSpeed = 50;
+    this.bullets = this.game.add.group();
+    this.bullets.enableBody = true;
+    this.bullets.bodyType = Phaser.Physics.Arcade.Body;
+    this.fireTimer = 0;
+    this.fireRate = 2;
+
+
     this.members = null;
 
     this.lagZone = 100;
@@ -56,6 +105,8 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.body.drag.y = this.moveSpeed*20;
 
     this.body.collideWorldBounds = true;
+
+
 
 
 };
@@ -137,11 +188,33 @@ Ranger.prototype.update = function() {
         }
     }
 
+    if (this.game.input.activePointer.isDown) {
+        this.fire();
+    }
+
 };
+
+
+Ranger.prototype.fire = function() {
+    if(this.fireTimer < this.game.time.now) {
+        //this.shootSound.play();
+        var bullet = this.bullets.getFirstExists(false);
+
+        if (!bullet) {
+            bullet = new Bullet(this.game, 0, 0);
+            this.bullets.add(bullet);
+        }
+        bullet.reset(this.x, this.y);
+        bullet.revive();
+        this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
+        this.fireTimer = this.game.time.now + this.fireRate;
+    }
+};
+
 
 module.exports = Ranger;
 
-},{}],3:[function(require,module,exports){
+},{"./bullet":2}],4:[function(require,module,exports){
 'use strict';
 
 var Rock = function(game, x, y, frame) {
@@ -166,7 +239,7 @@ Rock.prototype.update = function() {
 
 module.exports = Rock;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var Ranger= require('./ranger');
@@ -243,7 +316,7 @@ Squad.prototype.addRanger = function(){
 
 module.exports = Squad;
 
-},{"./ranger":2}],5:[function(require,module,exports){
+},{"./ranger":3}],6:[function(require,module,exports){
 
 'use strict';
 
@@ -256,13 +329,18 @@ Boot.prototype = {
   },
   create: function() {
     this.game.input.maxPointers = 1;
+
+    this.game.defaultCursor = "none";
     this.game.state.start('preload');
+
+      Phaser.InputHandler.useHandCursor = false;
+
   }
 };
 
 module.exports = Boot;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -290,7 +368,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 function Intro() {
     this.logo = null;
@@ -329,7 +407,7 @@ Intro.prototype = {
 
 module.exports = Intro;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -363,7 +441,7 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
   'use strict';
   function Play() {}
@@ -390,7 +468,7 @@ module.exports = Menu;
   };
   
   module.exports = Play;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
 'use strict';
 function Preload() {
@@ -434,7 +512,7 @@ Preload.prototype = {
 
 module.exports = Preload;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var Ranger = require('../prefabs/ranger');
@@ -447,6 +525,8 @@ function Surface() {
     this.squad = null;
     this.worldSize = 3;
     this.props = null;
+    this.crosshair = null;
+    this.crosshair = null;
 }
 
 Surface.prototype = {
@@ -486,24 +566,42 @@ Surface.prototype = {
 
         }
 
+        this.crosshair = this.game.add.sprite(this.game.width/2, this.game.height/2, 'crosshair');
+        this.crosshair.fixedToCamera = true;
+        this.crosshair.blendMode = Phaser.blendModes.DARKEN;
+        this.crosshair.anchor.setTo(0.5,0.5);
 
-        //this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
+        // LIGHT EFFECTS
+
         var lightSprite = this.game.add.image(0, 0, 'light');
         lightSprite.fixedToCamera = true;
         lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+        this.interactive = true;
+        this.buttonMode = true;
 
         var darkSprite = this.game.add.image(0, 0, 'dark');
         darkSprite.fixedToCamera = true;
         darkSprite.blendMode = Phaser.blendModes.MULTIPLY;
 
 
-
+        this.game.canvas.style.cursor = "none";
     },
 
     update: function() {
 
+        this.crosshair.cameraOffset.x = this.game.input.mousePointer.x;
+        this.crosshair.cameraOffset.y = this.game.input.mousePointer.y;
+
+
+
+
+
         this.game.physics.arcade.collide(this.squad.members, this.props, this.propCollisionHandler, null, this);
         this.game.physics.arcade.collide(this.squad.members, this.squad.members, null, null, this);
+
+
+
     },
 
     propCollisionHandler: function(squadMember, prop){
@@ -515,4 +613,4 @@ Surface.prototype = {
 };
 
 module.exports = Surface;
-},{"../prefabs/ranger":2,"../prefabs/rock":3,"../prefabs/squad":4}]},{},[1])
+},{"../prefabs/ranger":3,"../prefabs/rock":4,"../prefabs/squad":5}]},{},[1])

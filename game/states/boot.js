@@ -10,7 +10,12 @@ Boot.prototype = {
   },
   create: function() {
     this.game.input.maxPointers = 1;
+
+    this.game.defaultCursor = "none";
     this.game.state.start('preload');
+
+      Phaser.InputHandler.useHandCursor = false;
+
   }
 };
 

@@ -10,6 +10,8 @@ function Surface() {
     this.squad = null;
     this.worldSize = 3;
     this.props = null;
+    this.crosshair = null;
+    this.crosshair = null;
 }
 
 Surface.prototype = {
@@ -49,24 +51,42 @@ Surface.prototype = {
 
         }
 
+        this.crosshair = this.game.add.sprite(this.game.width/2, this.game.height/2, 'crosshair');
+        this.crosshair.fixedToCamera = true;
+        this.crosshair.blendMode = Phaser.blendModes.DARKEN;
+        this.crosshair.anchor.setTo(0.5,0.5);
 
-        //this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
+        // LIGHT EFFECTS
+
         var lightSprite = this.game.add.image(0, 0, 'light');
         lightSprite.fixedToCamera = true;
         lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+        this.interactive = true;
+        this.buttonMode = true;
 
         var darkSprite = this.game.add.image(0, 0, 'dark');
         darkSprite.fixedToCamera = true;
         darkSprite.blendMode = Phaser.blendModes.MULTIPLY;
 
 
-
+        this.game.canvas.style.cursor = "none";
     },
 
     update: function() {
 
+        this.crosshair.cameraOffset.x = this.game.input.mousePointer.x;
+        this.crosshair.cameraOffset.y = this.game.input.mousePointer.y;
+
+
+
+
+
         this.game.physics.arcade.collide(this.squad.members, this.props, this.propCollisionHandler, null, this);
         this.game.physics.arcade.collide(this.squad.members, this.squad.members, null, null, this);
+
+
+
     },
 
     propCollisionHandler: function(squadMember, prop){

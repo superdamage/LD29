@@ -1,5 +1,7 @@
 'use strict';
 
+var Bullet= require('./bullet');
+
 var Ranger = function(game, x, y, frame,squad,index) {
 
     Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
@@ -18,7 +20,15 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.squad= squad;
 
     this.moveSpeed = squad.moveSpeed*1.2;
-    this.bulletSpeed = 1000;
+
+    this.bulletSpeed = 50;
+    this.bullets = this.game.add.group();
+    this.bullets.enableBody = true;
+    this.bullets.bodyType = Phaser.Physics.Arcade.Body;
+    this.fireTimer = 0;
+    this.fireRate = 2;
+
+
     this.members = null;
 
     this.lagZone = 100;
@@ -36,6 +46,8 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.body.drag.y = this.moveSpeed*20;
 
     this.body.collideWorldBounds = true;
+
+
 
 
 };
@@ -117,6 +129,28 @@ Ranger.prototype.update = function() {
         }
     }
 
+    if (this.game.input.activePointer.isDown) {
+        this.fire();
+    }
+
 };
+
+
+Ranger.prototype.fire = function() {
+    if(this.fireTimer < this.game.time.now) {
+        //this.shootSound.play();
+        var bullet = this.bullets.getFirstExists(false);
+
+        if (!bullet) {
+            bullet = new Bullet(this.game, 0, 0);
+            this.bullets.add(bullet);
+        }
+        bullet.reset(this.x, this.y);
+        bullet.revive();
+        this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
+        this.fireTimer = this.game.time.now + this.fireRate;
+    }
+};
+
 
 module.exports = Ranger;

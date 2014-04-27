@@ -1,5 +1,6 @@
 {
   "projectName": "LD29",
   "gameWidth": "800",
-  "gameHeight": "600"
+  "gameHeight": "600",
+  "cursor":"none"
 }
