@@ -20,8 +20,8 @@ Preload.prototype = {
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
 
-    this.game.load.image('dark', '/assets/illumination_dark0001.png');
-    this.game.load.image('light', '/assets/illumination_light0001.png');
+    this.game.load.image('dark', 'assets/illumination_dark0001.png');
+    this.game.load.image('light', 'assets/illumination_light0001.png');
 
   },
   create: function() {
