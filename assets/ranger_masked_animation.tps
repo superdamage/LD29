@@ -84,13 +84,13 @@
         <key>algorithmSettings</key>
         <struct type="AlgorithmSettings">
             <key>algorithm</key>
-            <enum type="AlgorithmSettings::AlgorithmId">MaxRects</enum>
+            <enum type="AlgorithmSettings::AlgorithmId">Basic</enum>
             <key>freeSizeMode</key>
             <enum type="AlgorithmSettings::AlgorithmFreeSizeMode">Best</enum>
             <key>sizeConstraints</key>
             <enum type="AlgorithmSettings::SizeConstraints">POT</enum>
             <key>forceSquared</key>
-            <false/>
+            <true/>
             <key>forceWordAligned</key>
             <false/>
             <key>maxRects</key>
@@ -160,18 +160,30 @@
             <key>trimThreshold</key>
             <uint>1</uint>
             <key>trimMode</key>
-            <enum type="SpriteSettings::TrimMode">Trim</enum>
+            <enum type="SpriteSettings::TrimMode">None</enum>
             <key>heuristicMask</key>
             <false/>
         </struct>
         <key>fileList</key>
         <array>
-            <filename>../../../../Downloads/crew_member_front/crew_member_front0001.png</filename>
-            <filename>../../../../Downloads/crew_member_front/crew_member_front0002.png</filename>
-            <filename>../../../../Downloads/crew_member_front/crew_member_front0003.png</filename>
-            <filename>../../../../Downloads/crew_member_front/crew_member_front0004.png</filename>
-            <filename>../../../../Downloads/crew_member_front/crew_member_front0005.png</filename>
-            <filename>../../../../Downloads/crew_member_front/crew_member_front0006.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_front/crew_member_front0001.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_front/crew_member_front0002.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_front/crew_member_front0003.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_front/crew_member_front0004.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_front/crew_member_front0005.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_front/crew_member_front0006.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_back/crew_member_back0001.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_back/crew_member_back0002.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_back/crew_member_back0003.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_back/crew_member_back0004.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_back/crew_member_back0005.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_back/crew_member_back0006.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_left/crew_member_left0001.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_left/crew_member_left0002.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_left/crew_member_left0003.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_right/crew_member_right0001.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_right/crew_member_right0002.png</filename>
+            <filename>../../../../Downloads/crew_member_png_squences (1)/crew_member_right/crew_member_right0003.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
