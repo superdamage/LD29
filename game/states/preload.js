@@ -30,9 +30,8 @@ Preload.prototype = {
   },
   update: function() {
     if(!!this.ready) {
-      //this.game.state.start('intro');
-
-        this.game.state.start('menu');
+      this.game.state.start('intro'); // RELEASE
+      //this.game.state.start('menu'); // DEVELOPMENT
     }
   },
   onLoadComplete: function() {

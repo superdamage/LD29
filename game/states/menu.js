@@ -15,7 +15,7 @@ Menu.prototype = {
     this.titleText = this.game.add.text(this.game.world.centerX, 300, 'SUBSURFACE\nRANGER SQUAD', style);
     this.titleText.anchor.setTo(0.5, 0.5);
 
-    this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'Click To Start', { font: '16px Arial', fill: '#ffffff', align: 'center'});
+    this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'click : shoot, WASD move', { font: '16px Arial', fill: '#ffffff', align: 'center'});
     this.instructionsText.anchor.setTo(0.5, 0.5);
 
     //this.sprite.angle = -20;
