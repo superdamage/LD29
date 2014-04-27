@@ -24,10 +24,12 @@ var Ranger = function(game, x, y, frame,squad,index) {
 
     Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
 
-    this.animations.add('walk_front', Phaser.Animation.generateFrameNames('crew_member_front', 0, 7, '.png', 4), 15, true);
-    this.animations.add('walk_back', Phaser.Animation.generateFrameNames('crew_member_back', 0, 7, '.png', 4), 15, true);
-    this.animations.add('walk_left', Phaser.Animation.generateFrameNames('crew_member_left', 0, 4, '.png', 4), 15, true);
-    this.animations.add('walk_right', Phaser.Animation.generateFrameNames('crew_member_right', 0, 4, '.png', 4), 15, true);
+    var walk_fps = 15;
+
+    this.animations.add('walk_front', Phaser.Animation.generateFrameNames('crew_member_front', 0, 7, '.png', 4), walk_fps, true);
+    this.animations.add('walk_back', Phaser.Animation.generateFrameNames('crew_member_back', 0, 7, '.png', 4), walk_fps, true);
+    this.animations.add('walk_left', Phaser.Animation.generateFrameNames('crew_member_left', 0, 4, '.png', 4), walk_fps, true);
+    this.animations.add('walk_right', Phaser.Animation.generateFrameNames('crew_member_right', 0, 4, '.png', 4), walk_fps, true);
     this.animations.add('idle', Phaser.Animation.generateFrameNames('crew_member_front', 0, 1, '.png', 4), 0, true);
 
     this.animations.play('idle');
@@ -101,9 +103,10 @@ Ranger.prototype.update = function() {
     }
 
     var minVelocity = this.moveSpeed*0.1;
+
     if( Math.abs(this.body.velocity.x) < minVelocity && Math.abs(this.body.velocity.y) < minVelocity){
-        this.body.velocity.x = this.body.velocity.y = 0;
-            this.animations.play('idle');
+        //this.body.velocity.x = this.body.velocity.y = 0;
+        this.animations.play('idle');
 
     }else{
 
@@ -388,7 +391,7 @@ Preload.prototype = {
     this.load.setPreloadSprite(this.asset);
     //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
-    this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
+    this.load.image('surface_tile', 'assets/ground_tile0003.png');
     //this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
     this.load.image('crosshair', 'assets/crosshair.png');

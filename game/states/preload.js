@@ -14,7 +14,7 @@ Preload.prototype = {
     this.load.setPreloadSprite(this.asset);
     //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
-    this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
+    this.load.image('surface_tile', 'assets/ground_tile0003.png');
     //this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
     this.load.image('crosshair', 'assets/crosshair.png');
