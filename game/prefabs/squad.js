@@ -4,6 +4,7 @@ var Ranger= require('./ranger');
 
 var Squad = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'crosshair', frame);
+    this.alpha = 0;
     this.anchor.setTo(0.5,0.5);
 
     this.moveSpeed = 600;
@@ -17,8 +18,9 @@ var Squad = function(game, x, y, frame) {
     this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
     this.downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
 
-    this.maxSquadSize = 0;
+    this.body.collideWorldBounds = true;
 
+    this.maxSquadSize = 0;
 };
 
 Squad.prototype = Object.create(Phaser.Sprite.prototype);
@@ -44,7 +46,7 @@ Squad.prototype.update = function() {
 }
 
 Squad.prototype.createMembers = function(squadSize){
-    this.maxSquadSize = 1;
+    this.maxSquadSize = 4;
     this.members = this.game.add.group();
     for(var i=0; i<this.maxSquadSize; i++){
 
@@ -54,7 +56,7 @@ Squad.prototype.createMembers = function(squadSize){
 }
 
 Squad.prototype.addRanger = function(){
-    var ranger = new Ranger(this.game,this.x,this.y,null,this);
+    var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
     this.members.add(ranger);
 }
 

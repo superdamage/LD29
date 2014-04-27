@@ -17,24 +17,75 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":4,"./states/gameover":5,"./states/intro":6,"./states/menu":7,"./states/play":8,"./states/preload":9,"./states/surface":10}],2:[function(require,module,exports){
+},{"./states/boot":5,"./states/gameover":6,"./states/intro":7,"./states/menu":8,"./states/play":9,"./states/preload":10,"./states/surface":11}],2:[function(require,module,exports){
 'use strict';
 
-var Ranger = function(game, x, y, frame,squad) {
+var Ranger = function(game, x, y, frame,squad,index) {
 
     Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
     this.anchor.setTo(0.5,0.5);
     this.squad= squad;
+
+    this.moveSpeed = 700;
+    this.bulletSpeed = 1000;
+    this.members = null;
+
+
+    this.lagZone = 100;
+
+    this.stancePosRadius = 50;
+
+    this.index = index;
+
+    this.game.physics.arcade.enableBody(this);
+
+    this.body.collideWorldBounds = true;
 };
 
 Ranger.prototype = Object.create(Phaser.Sprite.prototype);
 Ranger.prototype.constructor = Ranger;
 
 Ranger.prototype.update = function() {
-    //console.log(this.squad.x);
 
-    this.x += (this.squad.x-this.x)/10;
-    this.y += (this.squad.y-this.y)/10;
+    var stancePos_angle = (360/this.squad.members.length)*(this.index) - 90;
+    stancePos_angle *= 0.0174532925;
+
+    var stanceOffset = new Phaser.Point( Math.cos( stancePos_angle ) * this.stancePosRadius, Math.sin( stancePos_angle ) * this.stancePosRadius );
+    //console.log(this.index, pointOnCircle.x, pointOnCircle.y);sa
+
+    var stancePoint =  new Phaser.Point(this.squad.x+stanceOffset.x,this.squad.y+stanceOffset.y);
+
+    var leftKey = this.x > stancePoint.x;
+    var rightKey = this.x < stancePoint.x;
+    var upKey = this.y > stancePoint.y;
+    var downKey = this.y < stancePoint.y;
+
+    var xDif = (stancePoint.x - this.x) / this.lagZone;
+    var yDif = (stancePoint.y - this.y) / this.lagZone;
+
+    if(leftKey)xDif*=-1;
+    if(upKey)yDif*=-1;
+
+    xDif = Math.max(0,xDif); yDif = Math.max(0,yDif);
+    xDif = Math.min(1,xDif); yDif = Math.min(1,yDif);
+
+    this.body.velocity.x = this.body.velocity.y = 0;
+
+    if(leftKey) { //LEFT
+        this.body.velocity.x = -this.moveSpeed*xDif;
+    }
+    if(rightKey) { //RIGHT
+        this.body.velocity.x = this.moveSpeed*xDif;
+    }
+    if(downKey) { //DOWN
+        this.body.velocity.y = this.moveSpeed*yDif;
+    }
+    if(upKey) { //UP
+        this.body.velocity.y = -this.moveSpeed*yDif;
+    }
+
+    //this.x += (this.squad.x-this.x)/10;
+    //this.y += (this.squad.y-this.y)/10;
 };
 
 module.exports = Ranger;
@@ -42,10 +93,36 @@ module.exports = Ranger;
 },{}],3:[function(require,module,exports){
 'use strict';
 
+var Rock = function(game, x, y, frame) {
+
+    Phaser.Sprite.call(this, game, x, y, 'rock', frame);
+    this.anchor.setTo(0.5, 0.5);
+
+    this.game.physics.arcade.enableBody(this);
+
+    this.body.immovable = true;
+
+};
+
+Rock.prototype = Object.create(Phaser.Sprite.prototype);
+Rock.prototype.constructor = Rock;
+
+Rock.prototype.update = function() {
+  
+  // write your prefab's specific update code here
+  
+};
+
+module.exports = Rock;
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
 var Ranger= require('./ranger');
 
 var Squad = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'crosshair', frame);
+    this.alpha = 0;
     this.anchor.setTo(0.5,0.5);
 
     this.moveSpeed = 600;
@@ -59,8 +136,9 @@ var Squad = function(game, x, y, frame) {
     this.upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
     this.downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
 
-    this.maxSquadSize = 0;
+    this.body.collideWorldBounds = true;
 
+    this.maxSquadSize = 0;
 };
 
 Squad.prototype = Object.create(Phaser.Sprite.prototype);
@@ -86,7 +164,7 @@ Squad.prototype.update = function() {
 }
 
 Squad.prototype.createMembers = function(squadSize){
-    this.maxSquadSize = 1;
+    this.maxSquadSize = 4;
     this.members = this.game.add.group();
     for(var i=0; i<this.maxSquadSize; i++){
 
@@ -96,13 +174,13 @@ Squad.prototype.createMembers = function(squadSize){
 }
 
 Squad.prototype.addRanger = function(){
-    var ranger = new Ranger(this.game,this.x,this.y,null,this);
+    var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
     this.members.add(ranger);
 }
 
 module.exports = Squad;
 
-},{"./ranger":2}],4:[function(require,module,exports){
+},{"./ranger":2}],5:[function(require,module,exports){
 
 'use strict';
 
@@ -121,7 +199,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -149,7 +227,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 function Intro() {
     this.logo = null;
@@ -188,7 +266,7 @@ Intro.prototype = {
 
 module.exports = Intro;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -222,7 +300,7 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
   'use strict';
   function Play() {}
@@ -249,7 +327,7 @@ module.exports = Menu;
   };
   
   module.exports = Play;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 'use strict';
 function Preload() {
@@ -269,6 +347,7 @@ Preload.prototype = {
     this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
     this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.image('crosshair', 'assets/crosshair.png');
+    this.load.image('rock', 'assets/rock.png');
 
   },
   create: function() {
@@ -288,17 +367,19 @@ Preload.prototype = {
 
 module.exports = Preload;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
-var Ranger= require('../prefabs/ranger');
-var Squad= require('../prefabs/squad');
+var Ranger = require('../prefabs/ranger');
+var Squad = require('../prefabs/squad');
+var Rock = require('../prefabs/rock');
 
 function Surface() {
     this.land = null;
     //this.player = null;
     this.squad = null;
     this.worldSize = 3;
+    this.props = null;
 }
 
 Surface.prototype = {
@@ -326,19 +407,34 @@ Surface.prototype = {
         this.game.add.existing(this.squad);
         this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
 
+        this.props = this.game.add.group();
 
-        //this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
+        for(var i=0; i<100; i++){
 
+            var rockPos = new Phaser.Point(0,0);
+            rockPos.x = Math.random()*this.game.world.width;
+            rockPos.y = Math.random()*this.game.world.height;
+            var rock = new Rock(this.game,rockPos.x,rockPos.y);
+            this.props.add(rock);
 
-        //this.squad = Ranger(this.game,0, 0);
-        //this.game.add.existing(this.squad);
+        }
+
 
 
     },
+
     update: function() {
 
+        this.game.physics.arcade.collide(this.squad.members, this.props, this.propCollisionHandler, null, this);
+    },
+
+    propCollisionHandler: function(squadMember, prop){
+
     }
+
+
+
 };
 
 module.exports = Surface;
-},{"../prefabs/ranger":2,"../prefabs/squad":3}]},{},[1])
+},{"../prefabs/ranger":2,"../prefabs/rock":3,"../prefabs/squad":4}]},{},[1])
