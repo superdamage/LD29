@@ -59,11 +59,13 @@ module.exports = Bullet;
 },{}],3:[function(require,module,exports){
 'use strict';
 
-var Bullet= require('./bullet');
+
 
 var Ranger = function(game, x, y, frame,squad,index) {
 
     Phaser.Sprite.call(this, game, x, y, 'ranger', frame);
+
+
 
     var walk_fps = 15;
 
@@ -71,21 +73,21 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.animations.add('walk_back', Phaser.Animation.generateFrameNames('crew_member_back', 0, 7, '.png', 4), walk_fps, true);
     this.animations.add('walk_left', Phaser.Animation.generateFrameNames('crew_member_left', 0, 4, '.png', 4), walk_fps, true);
     this.animations.add('walk_right', Phaser.Animation.generateFrameNames('crew_member_right', 0, 4, '.png', 4), walk_fps, true);
-    this.animations.add('idle', Phaser.Animation.generateFrameNames('crew_member_front', 0, 1, '.png', 4), 0, true);
 
-    this.animations.play('idle');
+    this.animations.add('idle_front', Phaser.Animation.generateFrameNames('crew_member_front', 0, 1, '.png', 4), 0, true);
+    this.animations.add('idle_back', Phaser.Animation.generateFrameNames('crew_member_back', 0, 1, '.png', 4), 0, true);
+    this.animations.add('idle_left', Phaser.Animation.generateFrameNames('crew_member_left', 0, 1, '.png', 4), 0, true);
+    this.animations.add('idle_right', Phaser.Animation.generateFrameNames('crew_member_right', 0, 1, '.png', 4), 0, true);
 
-    this.anchor.setTo(0.5,0.5);
+
+    this.animations.play('idle_front');
+
+    this.anchor.setTo(0.5,1);
     this.squad= squad;
 
     this.moveSpeed = squad.moveSpeed*1.2;
 
-    this.bulletSpeed = 1000;
-    this.bullets = this.game.add.group();
-    this.bullets.enableBody = true;
-    this.bullets.bodyType = Phaser.Physics.Arcade.Body;
-    this.fireTimer = 0;
-    this.fireRate = 2;
+
 
 
     this.members = null;
@@ -122,6 +124,31 @@ Ranger.prototype.getStancePoint = function(numSquadMembers){
     stancePos_angle *= 0.0174532925;
     var stanceOffset = new Phaser.Point( Math.cos( stancePos_angle ) * this.stancePosRadius, Math.sin( stancePos_angle ) * this.stancePosRadius );
     return  new Phaser.Point(this.squad.x+stanceOffset.x,this.squad.y+stanceOffset.y);
+
+}
+
+Ranger.prototype.pointsToDirection = function point_direction(fromPoint,toPoint){
+    var x1 = fromPoint.x;
+    var y1 = fromPoint.y;
+
+    var x2 = toPoint.x;
+    var y2 = toPoint.y;
+
+    //y2 *= -1;
+    var angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+    angle += 45;
+    if(angle<0)angle += 360;
+
+    if(angle<90){
+        return "R";
+    }else if(angle<180){
+        return "B";
+    }else if(angle<270){
+        return "L";
+    }else{
+        return "T";
+    }
+
 
 }
 
@@ -164,57 +191,126 @@ Ranger.prototype.update = function() {
 
     var minVelocity = this.moveSpeed*0.5;
 
+    var walking = true;
     if( Math.abs(this.body.velocity.x) < minVelocity && Math.abs(this.body.velocity.y) < minVelocity){
-        //this.body.velocity.x = this.body.velocity.y = 0;
-        this.animations.play('idle');
-
-    }else{
-
-        var verticalVelocity = this.body.velocity.y;
-        var horizontalVelocity = this.body.velocity.x;
-
-        if(Math.abs(horizontalVelocity)>Math.abs(verticalVelocity)){
-            if(horizontalVelocity>0){
-                this.animations.play('walk_right');
-            }else{
-                this.animations.play('walk_left');
-            }
-        }else{
-            if(this.body.velocity.y >0){
-                this.animations.play('walk_front');
-            }else{
-                this.animations.play('walk_back');
-            }
-        }
+        walking = false;
     }
 
     if (this.game.input.activePointer.isDown) {
-        this.fire();
-    }
 
-};
+        switch(this.pointsToDirection(this.body,this.squad.crosshair)){
 
+            case "R":
+                this.animations.play(walking?'walk_right':'idle_right');
+                break;
 
-Ranger.prototype.fire = function() {
-    if(this.fireTimer < this.game.time.now) {
-        //this.shootSound.play();
-        var bullet = this.bullets.getFirstExists(false);
+            case "B":
+                this.animations.play(walking?'walk_front':'idle_front');
+                break;
 
-        if (!bullet) {
-            bullet = new Bullet(this.game, 0, 0);
-            this.bullets.add(bullet);
+            case "L":
+                this.animations.play(walking?'walk_left':'idle_left');
+                break;
+
+            case "T":
+                this.animations.play(walking?'walk_back':'idle_back');
+                break;
         }
-        bullet.reset(this.x, this.y);
-        bullet.revive();
-        this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
-        this.fireTimer = this.game.time.now + this.fireRate;
+
+    }else{
+
+        if(walking == false){
+            //this.body.velocity.x = this.body.velocity.y = 0;
+            this.animations.play('idle_front');
+
+        }else{
+
+            var verticalVelocity = this.body.velocity.y;
+            var horizontalVelocity = this.body.velocity.x;
+
+            if(Math.abs(horizontalVelocity)>Math.abs(verticalVelocity)){
+                if(horizontalVelocity>0){
+                    this.animations.play('walk_right');
+                }else{
+                    this.animations.play('walk_left');
+                }
+            }else{
+                if(this.body.velocity.y >0){
+                    this.animations.play('walk_front');
+                }else{
+                    this.animations.play('walk_back');
+                }
+            }
+        }
+
     }
+
+
+
+
+
 };
+
+Ranger.prototype.gunOffset = function(){
+
+    var offset = new Phaser.Point(0,0)
+
+    //console.log(this.animations.currentAnim.name);
+
+    var n = this.animations.currentAnim.name;
+
+    if(n == "idle_front" || n == "walk_front"){
+        offset.x = 2;
+        offset.y = 40;
+
+    }else if(n == "idle_back" || n == "walk_back"){
+        offset.x = -6;
+        offset.y = 16;
+
+    }else if(n == "idle_right" || n == "walk_right"){
+        offset.x = 25;
+        offset.y = 25;
+
+    }else if(n == "idle_left" || n == "walk_left"){
+        offset.x = -15;
+        offset.y = 25;
+    }
+
+
+    /*
+    switch(this.animations.currentAnim.name){
+
+        case "idle_front" || "walk_front" :
+            offset.x = 2;
+            offset.y = 40;
+            break;
+
+        case "idle_back" || "walk_back" :
+            offset.x = -6;
+            offset.y = 16;
+            break;
+
+        case "idle_right" || "walk_right" :
+            offset.x = 25;
+            offset.y = 25;
+            break;
+
+        case "idle_left" || "walk_left" :
+            offset.x = -15;
+            offset.y = 25;
+            break;
+    }
+    */
+
+    return offset;
+
+}
+
 
 
 module.exports = Ranger;
 
-},{"./bullet":2}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 var Rock = function(game, x, y, frame) {
@@ -243,6 +339,7 @@ module.exports = Rock;
 'use strict';
 
 var Ranger= require('./ranger');
+var Bullet= require('./bullet');
 
 var Squad = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'crosshair', frame);
@@ -250,8 +347,9 @@ var Squad = function(game, x, y, frame) {
     this.anchor.setTo(0.5,0.5);
 
     this.moveSpeed = 450;
-    this.bulletSpeed = 1000;
     this.members = null;
+    this.crosshair;
+
 
     this.game.physics.arcade.enableBody(this);
 
@@ -291,7 +389,43 @@ Squad.prototype.update = function() {
         this.body.velocity.y = -this.moveSpeed;
     }
 
+    if (this.game.input.activePointer.isDown) {
+        this.fire();
+    }
+
 }
+
+Squad.prototype.nextGunPosition = function(){
+    this.lastFiredMemberIndex ++;
+    if(this.lastFiredMemberIndex>this.members.length-1){
+        this.lastFiredMemberIndex = 0;
+    }
+
+    var ranger = this.members.getAt(this.lastFiredMemberIndex);
+    var gunOffset = ranger.gunOffset();
+
+    return new Phaser.Point(ranger.body.x+gunOffset.x,ranger.body.y+gunOffset.y);
+}
+
+Squad.prototype.fire = function() {
+
+    if(this.fireTimer < this.game.time.now) {
+        //this.shootSound.play();
+        var bullet = this.bullets.getFirstExists(false);
+
+        if (!bullet) {
+            bullet = new Bullet(this.game, 0, 0);
+            this.bullets.add(bullet);
+        }
+
+        var gunPos = this.nextGunPosition();
+
+        bullet.reset(gunPos.x, gunPos.y);
+        bullet.revive();
+        this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
+        this.fireTimer = this.game.time.now + this.fireRate;
+    }
+};
 
 Squad.prototype.createMembers = function(squadSize){
     this.maxSquadSize = 4;
@@ -305,18 +439,27 @@ Squad.prototype.createMembers = function(squadSize){
 
     }
 
+
+
+    this.bulletSpeed = 1000;
+    this.bullets = this.game.add.group();
+    this.bullets.enableBody = true;
+    this.bullets.bodyType = Phaser.Physics.Arcade.Body;
+    this.fireTimer = 0;
+    this.lastFiredMemberIndex = 0;
+    this.fireRate = 50;
+
 }
 
 Squad.prototype.addRanger = function(){
     var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
-
     this.members.add(ranger);
     return ranger;
 }
 
 module.exports = Squad;
 
-},{"./ranger":3}],6:[function(require,module,exports){
+},{"./bullet":2,"./ranger":3}],6:[function(require,module,exports){
 
 'use strict';
 
@@ -550,6 +693,7 @@ Surface.prototype = {
 
         this.squad = new Squad(this.game,this.game.world.width/2,this.game.world.height/2);
 
+
         this.squad.createMembers();
 
         this.game.add.existing(this.squad);
@@ -571,6 +715,8 @@ Surface.prototype = {
         this.crosshair.fixedToCamera = true;
         this.crosshair.blendMode = Phaser.blendModes.DARKEN;
         this.crosshair.anchor.setTo(0.5,0.5);
+
+        this.squad.crosshair = this.crosshair;
 
         // LIGHT EFFECTS
 
