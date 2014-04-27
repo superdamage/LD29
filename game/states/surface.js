@@ -1,13 +1,15 @@
 'use strict';
 
-var Ranger= require('../prefabs/ranger');
-var Squad= require('../prefabs/squad');
+var Ranger = require('../prefabs/ranger');
+var Squad = require('../prefabs/squad');
+var Rock = require('../prefabs/rock');
 
 function Surface() {
     this.land = null;
     //this.player = null;
     this.squad = null;
     this.worldSize = 3;
+    this.props = null;
 }
 
 Surface.prototype = {
@@ -35,18 +37,33 @@ Surface.prototype = {
         this.game.add.existing(this.squad);
         this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
 
+        this.props = this.game.add.group();
 
-        //this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
+        for(var i=0; i<100; i++){
 
+            var rockPos = new Phaser.Point(0,0);
+            rockPos.x = Math.random()*this.game.world.width;
+            rockPos.y = Math.random()*this.game.world.height;
+            var rock = new Rock(this.game,rockPos.x,rockPos.y);
+            this.props.add(rock);
 
-        //this.squad = Ranger(this.game,0, 0);
-        //this.game.add.existing(this.squad);
+        }
+
 
 
     },
+
     update: function() {
 
+        this.game.physics.arcade.collide(this.squad.members, this.props, this.propCollisionHandler, null, this);
+    },
+
+    propCollisionHandler: function(squadMember, prop){
+
     }
+
+
+
 };
 
 module.exports = Surface;

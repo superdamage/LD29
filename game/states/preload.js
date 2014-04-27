@@ -17,6 +17,7 @@ Preload.prototype = {
     this.load.image('surface_tile', 'assets/surface_tile_big_light.png');
     this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.image('crosshair', 'assets/crosshair.png');
+    this.load.image('rock', 'assets/rock.png');
 
   },
   create: function() {
