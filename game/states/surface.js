@@ -50,6 +50,16 @@ Surface.prototype = {
         }
 
 
+        //this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
+        var lightSprite = this.game.add.image(0, 0, 'light');
+        lightSprite.fixedToCamera = true;
+        lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+        var darkSprite = this.game.add.image(0, 0, 'dark');
+        darkSprite.fixedToCamera = true;
+        darkSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+
 
     },
 

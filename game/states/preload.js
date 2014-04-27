@@ -14,11 +14,14 @@ Preload.prototype = {
     this.load.setPreloadSprite(this.asset);
     //this.load.image('yeoman', 'assets/yeoman-logo.png');
     this.load.image('superdamage', 'assets/superdamage.png');
-    this.load.image('surface_tile', 'assets/ground_tile0003.png');
+    this.load.image('surface_tile', 'assets/ground_tile0003_v2.png');
     //this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
+
+    this.game.load.image('dark', '/assets/illumination_dark0001.png');
+    this.game.load.image('light', '/assets/illumination_light0001.png');
 
   },
   create: function() {
