@@ -37,11 +37,9 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.anchor.setTo(0.5,0.5);
     this.squad= squad;
 
-    this.moveSpeed = squad.moveSpeed;
+    this.moveSpeed = squad.moveSpeed*1.2;
     this.bulletSpeed = 1000;
     this.members = null;
-
-
 
     this.lagZone = 100;
 
@@ -54,24 +52,35 @@ var Ranger = function(game, x, y, frame,squad,index) {
     this.body.maxVelocity.x = this.moveSpeed;
     this.body.maxVelocity.y = this.moveSpeed;
 
-    this.body.drag.x = this.moveSpeed*10;
-    this.body.drag.y = this.moveSpeed*10;
+    this.body.drag.x = this.moveSpeed*20;
+    this.body.drag.y = this.moveSpeed*20;
 
     this.body.collideWorldBounds = true;
+
+
 };
 
 Ranger.prototype = Object.create(Phaser.Sprite.prototype);
 Ranger.prototype.constructor = Ranger;
 
+Ranger.prototype.getStancePoint = function(numSquadMembers){
+
+    if(!numSquadMembers)numSquadMembers = this.squad.members.length;
+
+    var stancePos_angle = (360/numSquadMembers)*(this.index) - 90;
+    stancePos_angle *= 0.0174532925;
+    var stanceOffset = new Phaser.Point( Math.cos( stancePos_angle ) * this.stancePosRadius, Math.sin( stancePos_angle ) * this.stancePosRadius );
+    return  new Phaser.Point(this.squad.x+stanceOffset.x,this.squad.y+stanceOffset.y);
+
+}
+
 Ranger.prototype.update = function() {
 
-    var stancePos_angle = (360/this.squad.members.length)*(this.index) - 90;
-    stancePos_angle *= 0.0174532925;
+    //var stancePos_angle = (360/this.squad.members.length)*(this.index) - 90;
+    //stancePos_angle *= 0.0174532925;
 
-    var stanceOffset = new Phaser.Point( Math.cos( stancePos_angle ) * this.stancePosRadius, Math.sin( stancePos_angle ) * this.stancePosRadius );
-    //console.log(this.index, pointOnCircle.x, pointOnCircle.y);sa
 
-    var stancePoint =  new Phaser.Point(this.squad.x+stanceOffset.x,this.squad.y+stanceOffset.y);
+    var stancePoint = this.getStancePoint();
 
     var leftKey = this.x > stancePoint.x;
     var rightKey = this.x < stancePoint.x;
@@ -102,14 +111,13 @@ Ranger.prototype.update = function() {
         this.body.velocity.y = -this.moveSpeed*yDif;
     }
 
-    var minVelocity = this.moveSpeed*0.3;
+    var minVelocity = this.moveSpeed*0.5;
 
     if( Math.abs(this.body.velocity.x) < minVelocity && Math.abs(this.body.velocity.y) < minVelocity){
         //this.body.velocity.x = this.body.velocity.y = 0;
         this.animations.play('idle');
 
     }else{
-
 
         var verticalVelocity = this.body.velocity.y;
         var horizontalVelocity = this.body.velocity.x;
@@ -128,10 +136,6 @@ Ranger.prototype.update = function() {
             }
         }
     }
-
-    //animations
-    //if(this.body.velocity.x > )
-    //if()
 
 };
 
@@ -172,7 +176,7 @@ var Squad = function(game, x, y, frame) {
     this.alpha = 0;
     this.anchor.setTo(0.5,0.5);
 
-    this.moveSpeed = 300;
+    this.moveSpeed = 450;
     this.bulletSpeed = 1000;
     this.members = null;
 
@@ -213,16 +217,22 @@ Squad.prototype.update = function() {
 Squad.prototype.createMembers = function(squadSize){
     this.maxSquadSize = 4;
     this.members = this.game.add.group();
-    for(var i=0; i<this.maxSquadSize; i++){
-
-        this.addRanger();
+    var i=0;
+    for(i=0; i<this.maxSquadSize; i++){
+        var ranger = this.addRanger();
+        var stancePoint = ranger.getStancePoint(this.maxSquadSize);
+        ranger.x = stancePoint.x;
+        ranger.y = stancePoint.y;
 
     }
+
 }
 
 Squad.prototype.addRanger = function(){
     var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
+
     this.members.add(ranger);
+    return ranger;
 }
 
 module.exports = Squad;

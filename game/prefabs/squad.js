@@ -7,7 +7,7 @@ var Squad = function(game, x, y, frame) {
     this.alpha = 0;
     this.anchor.setTo(0.5,0.5);
 
-    this.moveSpeed = 300;
+    this.moveSpeed = 450;
     this.bulletSpeed = 1000;
     this.members = null;
 
@@ -48,16 +48,22 @@ Squad.prototype.update = function() {
 Squad.prototype.createMembers = function(squadSize){
     this.maxSquadSize = 4;
     this.members = this.game.add.group();
-    for(var i=0; i<this.maxSquadSize; i++){
-
-        this.addRanger();
+    var i=0;
+    for(i=0; i<this.maxSquadSize; i++){
+        var ranger = this.addRanger();
+        var stancePoint = ranger.getStancePoint(this.maxSquadSize);
+        ranger.x = stancePoint.x;
+        ranger.y = stancePoint.y;
 
     }
+
 }
 
 Squad.prototype.addRanger = function(){
     var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
+
     this.members.add(ranger);
+    return ranger;
 }
 
 module.exports = Squad;
