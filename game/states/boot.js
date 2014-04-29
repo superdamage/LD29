@@ -14,7 +14,7 @@ Boot.prototype = {
     this.game.defaultCursor = "none";
     this.game.state.start('preload');
 
-      Phaser.InputHandler.useHandCursor = false;
+    Phaser.InputHandler.useHandCursor = false;
 
   }
 };

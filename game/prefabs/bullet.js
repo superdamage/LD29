@@ -2,6 +2,8 @@
 
 var Bullet = function(game, x, y, frame) {
 
+
+
     //this.size = 20;
     //this.color = '#925bb2';
 
@@ -10,6 +12,8 @@ var Bullet = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'bullet', frame);
     this.checkWorldBounds = true;
     this.outOfBoundsKill = true;
+
+    this.anchor.setTo(0,0.5);
 
 };
 

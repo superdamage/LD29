@@ -17,6 +17,7 @@ Preload.prototype = {
     this.load.image('surface_tile', 'assets/ground_tile0003_v2.png');
     //this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
+    this.load.atlasJSONHash('elemental', 'assets/elemental.png', 'assets/elemental.json');
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
     this.load.image('bullet', 'assets/bullet.png');
@@ -30,8 +31,8 @@ Preload.prototype = {
   },
   update: function() {
     if(!!this.ready) {
-      this.game.state.start('intro'); // RELEASE
-      //this.game.state.start('menu'); // DEVELOPMENT
+      //this.game.state.start('intro'); // RELEASE
+      this.game.state.start('menu'); // DEVELOPMENT
     }
   },
   onLoadComplete: function() {

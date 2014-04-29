@@ -17,10 +17,12 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":6,"./states/gameover":7,"./states/intro":8,"./states/menu":9,"./states/play":10,"./states/preload":11,"./states/surface":12}],2:[function(require,module,exports){
+},{"./states/boot":7,"./states/gameover":8,"./states/intro":9,"./states/menu":10,"./states/play":11,"./states/preload":12,"./states/surface":13}],2:[function(require,module,exports){
 'use strict';
 
 var Bullet = function(game, x, y, frame) {
+
+
 
     //this.size = 20;
     //this.color = '#925bb2';
@@ -30,6 +32,8 @@ var Bullet = function(game, x, y, frame) {
     Phaser.Sprite.call(this, game, x, y, 'bullet', frame);
     this.checkWorldBounds = true;
     this.outOfBoundsKill = true;
+
+    this.anchor.setTo(0,0.5);
 
 };
 
@@ -57,6 +61,27 @@ Bullet.prototype.createTexture = function() {
 module.exports = Bullet;
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
+var Elemental = function(game, x, y, frame) {
+  Phaser.Sprite.call(this, game, x, y, 'elemental', frame);
+
+  // initialize your prefab here
+  
+};
+
+Elemental.prototype = Object.create(Phaser.Sprite.prototype);
+Elemental.prototype.constructor = Elemental;
+
+Elemental.prototype.update = function() {
+  
+  // write your prefab's specific update code here
+  
+};
+
+module.exports = Elemental;
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 
@@ -196,7 +221,7 @@ Ranger.prototype.update = function() {
         walking = false;
     }
 
-    if (this.game.input.activePointer.isDown) {
+    if (this.game.input.activePointer.isDown) { //shooting
 
         switch(this.pointsToDirection(this.body,this.squad.crosshair)){
 
@@ -255,25 +280,23 @@ Ranger.prototype.gunOffset = function(){
 
     var offset = new Phaser.Point(0,0)
 
-    //console.log(this.animations.currentAnim.name);
-
     var n = this.animations.currentAnim.name;
 
     if(n == "idle_front" || n == "walk_front"){
-        offset.x = 2;
+        offset.x = 4;
         offset.y = 40;
 
     }else if(n == "idle_back" || n == "walk_back"){
-        offset.x = -6;
-        offset.y = 16;
+        offset.x = 2;
+        offset.y = 30;
 
     }else if(n == "idle_right" || n == "walk_right"){
         offset.x = 25;
-        offset.y = 25;
+        offset.y = 31;
 
     }else if(n == "idle_left" || n == "walk_left"){
-        offset.x = -15;
-        offset.y = 25;
+        offset.x = 2;
+        offset.y = 31;
     }
 
 
@@ -310,7 +333,7 @@ Ranger.prototype.gunOffset = function(){
 
 module.exports = Ranger;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var Rock = function(game, x, y, frame) {
@@ -335,7 +358,7 @@ Rock.prototype.update = function() {
 
 module.exports = Rock;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var Ranger= require('./ranger');
@@ -403,8 +426,26 @@ Squad.prototype.nextGunPosition = function(){
 
     var ranger = this.members.getAt(this.lastFiredMemberIndex);
     var gunOffset = ranger.gunOffset();
+    var gunPoint = new Phaser.Point(ranger.body.x+gunOffset.x,ranger.body.y+gunOffset.y)
 
-    return new Phaser.Point(ranger.body.x+gunOffset.x,ranger.body.y+gunOffset.y);
+    return gunPoint;
+}
+
+
+Squad.prototype.pointsToAngle = function(fromPoint,toPoint){
+    var x1 = fromPoint.x;
+    var y1 = fromPoint.y;
+
+    var x2 = toPoint.x;
+    var y2 = toPoint.y;
+
+
+
+
+    //y2 *= -1;
+    return Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+    //return Math.atan2(y2 - y1, x2 - x1);
+
 }
 
 Squad.prototype.fire = function() {
@@ -418,16 +459,26 @@ Squad.prototype.fire = function() {
             this.bullets.add(bullet);
         }
 
-        var gunPos = this.nextGunPosition();
-
-        bullet.reset(gunPos.x, gunPos.y);
         bullet.revive();
+        var gunPos = this.nextGunPosition();
+        bullet.reset(gunPos.x, gunPos.y);
+
         this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
+        var targetAngle = this.game.math.angleBetween(
+            gunPos.x, gunPos.y,
+            this.game.input.activePointer.worldX, this.game.input.activePointer.worldY
+        );
+
+        bullet.rotation = -(targetAngle - (90*0.0174532925));
+
         this.fireTimer = this.game.time.now + this.fireRate;
     }
 };
 
 Squad.prototype.createMembers = function(squadSize){
+
+    this.bullets = this.game.add.group();
+
     this.maxSquadSize = 4;
     this.members = this.game.add.group();
     var i=0;
@@ -439,10 +490,8 @@ Squad.prototype.createMembers = function(squadSize){
 
     }
 
-
-
     this.bulletSpeed = 1000;
-    this.bullets = this.game.add.group();
+
     this.bullets.enableBody = true;
     this.bullets.bodyType = Phaser.Physics.Arcade.Body;
     this.fireTimer = 0;
@@ -459,7 +508,7 @@ Squad.prototype.addRanger = function(){
 
 module.exports = Squad;
 
-},{"./bullet":2,"./ranger":3}],6:[function(require,module,exports){
+},{"./bullet":2,"./ranger":4}],7:[function(require,module,exports){
 
 'use strict';
 
@@ -476,14 +525,14 @@ Boot.prototype = {
     this.game.defaultCursor = "none";
     this.game.state.start('preload');
 
-      Phaser.InputHandler.useHandCursor = false;
+    Phaser.InputHandler.useHandCursor = false;
 
   }
 };
 
 module.exports = Boot;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -511,7 +560,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 function Intro() {
     this.logo = null;
@@ -550,7 +599,7 @@ Intro.prototype = {
 
 module.exports = Intro;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -584,7 +633,7 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
   'use strict';
   function Play() {}
@@ -611,7 +660,7 @@ module.exports = Menu;
   };
   
   module.exports = Play;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 
 'use strict';
 function Preload() {
@@ -631,6 +680,7 @@ Preload.prototype = {
     this.load.image('surface_tile', 'assets/ground_tile0003_v2.png');
     //this.load.image('ranger', 'assets/ranger_masked.png');
     this.load.atlasJSONHash('ranger', 'assets/ranger_masked_animation.png', 'assets/ranger_masked_animation.json');
+    this.load.atlasJSONHash('elemental', 'assets/elemental.png', 'assets/elemental.json');
     this.load.image('crosshair', 'assets/crosshair.png');
     this.load.image('rock', 'assets/rock.png');
     this.load.image('bullet', 'assets/bullet.png');
@@ -644,8 +694,8 @@ Preload.prototype = {
   },
   update: function() {
     if(!!this.ready) {
-      this.game.state.start('intro'); // RELEASE
-      //this.game.state.start('menu'); // DEVELOPMENT
+      //this.game.state.start('intro'); // RELEASE
+      this.game.state.start('menu'); // DEVELOPMENT
     }
   },
   onLoadComplete: function() {
@@ -655,12 +705,13 @@ Preload.prototype = {
 
 module.exports = Preload;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var Ranger = require('../prefabs/ranger');
 var Squad = require('../prefabs/squad');
 var Rock = require('../prefabs/rock');
+var Elemental = require('../prefabs/elemental');
 
 function Surface() {
     this.land = null;
@@ -710,6 +761,16 @@ Surface.prototype = {
 
         }
 
+
+        // ENEMIES
+
+        //var elemental = new Elemental(this.game,this.game.world.centerX,this.game.world.centerY);
+        //this.game.add.existing(elemental);
+
+
+        // CROSSHAIR
+
+
         this.crosshair = this.game.add.sprite(this.game.width/2, this.game.height/2, 'crosshair');
         this.crosshair.fixedToCamera = true;
         this.crosshair.blendMode = Phaser.blendModes.DARKEN;
@@ -729,6 +790,9 @@ Surface.prototype = {
         var darkSprite = this.game.add.image(0, 0, 'dark');
         darkSprite.fixedToCamera = true;
         darkSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+
+
 
 
         this.game.canvas.style.cursor = "none";
@@ -759,4 +823,4 @@ Surface.prototype = {
 };
 
 module.exports = Surface;
-},{"../prefabs/ranger":3,"../prefabs/rock":4,"../prefabs/squad":5}]},{},[1])
+},{"../prefabs/elemental":3,"../prefabs/ranger":4,"../prefabs/rock":5,"../prefabs/squad":6}]},{},[1])
