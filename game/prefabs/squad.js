@@ -65,8 +65,26 @@ Squad.prototype.nextGunPosition = function(){
 
     var ranger = this.members.getAt(this.lastFiredMemberIndex);
     var gunOffset = ranger.gunOffset();
+    var gunPoint = new Phaser.Point(ranger.body.x+gunOffset.x,ranger.body.y+gunOffset.y)
 
-    return new Phaser.Point(ranger.body.x+gunOffset.x,ranger.body.y+gunOffset.y);
+    return gunPoint;
+}
+
+
+Squad.prototype.pointsToAngle = function(fromPoint,toPoint){
+    var x1 = fromPoint.x;
+    var y1 = fromPoint.y;
+
+    var x2 = toPoint.x;
+    var y2 = toPoint.y;
+
+
+
+
+    //y2 *= -1;
+    return Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+    //return Math.atan2(y2 - y1, x2 - x1);
+
 }
 
 Squad.prototype.fire = function() {
@@ -80,16 +98,26 @@ Squad.prototype.fire = function() {
             this.bullets.add(bullet);
         }
 
-        var gunPos = this.nextGunPosition();
-
-        bullet.reset(gunPos.x, gunPos.y);
         bullet.revive();
+        var gunPos = this.nextGunPosition();
+        bullet.reset(gunPos.x, gunPos.y);
+
         this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
+        var targetAngle = this.game.math.angleBetween(
+            gunPos.x, gunPos.y,
+            this.game.input.activePointer.worldX, this.game.input.activePointer.worldY
+        );
+
+        bullet.rotation = -(targetAngle - (90*0.0174532925));
+
         this.fireTimer = this.game.time.now + this.fireRate;
     }
 };
 
 Squad.prototype.createMembers = function(squadSize){
+
+    this.bullets = this.game.add.group();
+
     this.maxSquadSize = 4;
     this.members = this.game.add.group();
     var i=0;
@@ -101,10 +129,8 @@ Squad.prototype.createMembers = function(squadSize){
 
     }
 
-
-
     this.bulletSpeed = 1000;
-    this.bullets = this.game.add.group();
+
     this.bullets.enableBody = true;
     this.bullets.bodyType = Phaser.Physics.Arcade.Body;
     this.fireTimer = 0;

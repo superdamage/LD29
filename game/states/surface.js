@@ -3,6 +3,7 @@
 var Ranger = require('../prefabs/ranger');
 var Squad = require('../prefabs/squad');
 var Rock = require('../prefabs/rock');
+var Elemental = require('../prefabs/elemental');
 
 function Surface() {
     this.land = null;
@@ -52,6 +53,16 @@ Surface.prototype = {
 
         }
 
+
+        // ENEMIES
+
+        //var elemental = new Elemental(this.game,this.game.world.centerX,this.game.world.centerY);
+        //this.game.add.existing(elemental);
+
+
+        // CROSSHAIR
+
+
         this.crosshair = this.game.add.sprite(this.game.width/2, this.game.height/2, 'crosshair');
         this.crosshair.fixedToCamera = true;
         this.crosshair.blendMode = Phaser.blendModes.DARKEN;
@@ -71,6 +82,9 @@ Surface.prototype = {
         var darkSprite = this.game.add.image(0, 0, 'dark');
         darkSprite.fixedToCamera = true;
         darkSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+
+
 
 
         this.game.canvas.style.cursor = "none";

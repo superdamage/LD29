@@ -137,7 +137,7 @@ Ranger.prototype.update = function() {
         walking = false;
     }
 
-    if (this.game.input.activePointer.isDown) {
+    if (this.game.input.activePointer.isDown) { //shooting
 
         switch(this.pointsToDirection(this.body,this.squad.crosshair)){
 
@@ -196,25 +196,23 @@ Ranger.prototype.gunOffset = function(){
 
     var offset = new Phaser.Point(0,0)
 
-    //console.log(this.animations.currentAnim.name);
-
     var n = this.animations.currentAnim.name;
 
     if(n == "idle_front" || n == "walk_front"){
-        offset.x = 2;
+        offset.x = 4;
         offset.y = 40;
 
     }else if(n == "idle_back" || n == "walk_back"){
-        offset.x = -6;
-        offset.y = 16;
+        offset.x = 2;
+        offset.y = 30;
 
     }else if(n == "idle_right" || n == "walk_right"){
         offset.x = 25;
-        offset.y = 25;
+        offset.y = 31;
 
     }else if(n == "idle_left" || n == "walk_left"){
-        offset.x = -15;
-        offset.y = 25;
+        offset.x = 2;
+        offset.y = 31;
     }
 
 
