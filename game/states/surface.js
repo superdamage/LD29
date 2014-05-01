@@ -4,6 +4,7 @@ var Ranger = require('../prefabs/ranger');
 var Squad = require('../prefabs/squad');
 var Rock = require('../prefabs/rock');
 var Elemental = require('../prefabs/elemental');
+var ElementalSpawner = require('../prefabs/elementalSpawner');
 
 function Surface() {
     this.land = null;
@@ -39,7 +40,7 @@ Surface.prototype = {
         this.squad.createMembers();
 
         this.game.add.existing(this.squad);
-        this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
+        this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
 
         this.props = this.game.add.group();
 
@@ -56,8 +57,7 @@ Surface.prototype = {
 
         // ENEMIES
 
-        //var elemental = new Elemental(this.game,this.game.world.centerX,this.game.world.centerY);
-        //this.game.add.existing(elemental);
+        var elementalSpawner = new ElementalSpawner(this.game,this.squad);
 
 
         // CROSSHAIR

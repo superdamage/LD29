@@ -33,7 +33,7 @@ var Ranger = function(game, x, y, frame,squad,index) {
 
     this.members = null;
 
-    this.lagZone = 100;
+    this.lagZone = 30;
 
     this.stancePosRadius = 35;
 

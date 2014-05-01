@@ -17,7 +17,7 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":7,"./states/gameover":8,"./states/intro":9,"./states/menu":10,"./states/play":11,"./states/preload":12,"./states/surface":13}],2:[function(require,module,exports){
+},{"./states/boot":8,"./states/gameover":9,"./states/intro":10,"./states/menu":11,"./states/play":12,"./states/preload":13,"./states/surface":14}],2:[function(require,module,exports){
 'use strict';
 
 var Bullet = function(game, x, y, frame) {
@@ -63,25 +63,188 @@ module.exports = Bullet;
 },{}],3:[function(require,module,exports){
 'use strict';
 
-var Elemental = function(game, x, y, frame) {
-  Phaser.Sprite.call(this, game, x, y, 'elemental', frame);
+var Squad = require('./squad');
 
-  // initialize your prefab here
-  
+var Elemental = function(game,squad, x, y, frame) {
+    Phaser.Sprite.call(this, game, x, y, 'elemental', frame);
+
+    this.game.physics.arcade.enableBody(this);
+
+    var walk_fps = 4;
+    var attack_fps = 6;
+    this.animations.add('move', Phaser.Animation.generateFrameNames('enemy_v1_left', 0, 5, '.png', 4), walk_fps, true);
+    this.animations.add('attack', Phaser.Animation.generateFrameNames('enemy_v1_attack_left', 0, 5, '.png', 4), attack_fps, true);
+
+
+    this.anchor.setTo(0.4,1);
+
+    this.squad = squad;
+    this.target = null;
+
+    this.speed = 100;
+    this.minDistance = 30;
+
 };
 
 Elemental.prototype = Object.create(Phaser.Sprite.prototype);
 Elemental.prototype.constructor = Elemental;
 
 Elemental.prototype.update = function() {
-  
-  // write your prefab's specific update code here
-  
+
+    if(this.target==null){
+        this.target = this.squad.getClosestLiving(this);
+    }else{
+        if(this.target.alive == false){
+            this.target = this.squad.getClosestLiving(this);
+        }
+    }
+
+    if(this.target!=null){
+
+
+
+        if(this.target.x < this.x){
+            this.scale.x = 1;
+        }else{
+            this.scale.x = -1;
+        }
+
+        var canMove = false;
+
+        if(this.game.physics.arcade.distanceBetween(this,this.target)>=this.minDistance){ // moving
+
+            canMove = true;
+            this.animations.play('move');
+
+        }else{
+
+
+            this.animations.play('attack');
+            //attack
+        }
+
+        this.game.physics.arcade.moveToObject(this,this.target, canMove?this.speed:0);
+
+    }
+
+
+
+
+
+
 };
+
+
+
+
 
 module.exports = Elemental;
 
-},{}],4:[function(require,module,exports){
+},{"./squad":7}],4:[function(require,module,exports){
+'use strict';
+
+var Elemental = require('./elemental');
+
+var ElementalSpawner = function(game,squad) {
+    Phaser.Group.call(this,game);
+
+
+
+    this.minEnemies = 1;
+    this.spawnRate = 2000;
+    this.squad = squad;
+    this.spawnTimer = this.game.time.now + this.spawnRate;
+
+
+
+    //this.spawn();
+
+};
+
+ElementalSpawner.prototype = Object.create(Phaser.Group.prototype);
+//ElementalSpawner.prototype = Phaser.Utils.extend(true, Phaser.Group.prototype, PIXI.Sprite.prototype);
+//ElementalSpawner.prototype.super = Phaser.Group.prototype;
+ElementalSpawner.prototype.constructor = ElementalSpawner;
+
+
+
+
+ElementalSpawner.prototype.update = function() {
+
+    if(this.spawnTimer < this.game.time.now) {
+
+        this.spawnTimer = this.game.time.now + this.spawnRate;
+
+        if(this.countLiving()<this.minEnemies){
+            this.spawn();
+        }
+
+    }
+
+    // super
+    var i = this.children.length;
+
+    while (i--)
+    {
+        this.children[i].update();
+    }
+
+};
+
+
+/*
+ Squad.prototype.fire = function() {
+
+ if(this.fireTimer < this.game.time.now) {
+ //this.shootSound.play();
+ var bullet = this.bullets.getFirstExists(false);
+
+ if (!bullet) {
+ bullet = new Bullet(this.game, 0, 0);
+ this.bullets.add(bullet);
+ }
+
+ bullet.revive();
+ var gunPos = this.nextGunPosition();
+ bullet.reset(gunPos.x, gunPos.y);
+
+ this.game.physics.arcade.moveToPointer(bullet, this.bulletSpeed);
+ var targetAngle = this.game.math.angleBetween(
+ gunPos.x, gunPos.y,
+ this.game.input.activePointer.worldX, this.game.input.activePointer.worldY
+ );
+
+ bullet.rotation = -(targetAngle - (90*0.0174532925));
+
+ this.fireTimer = this.game.time.now + this.fireRate;
+ }
+ };
+ */
+
+ElementalSpawner.prototype.spawn = function() {
+
+    var spawnPoint = new Phaser.Point(this.game.camera.x + this.game.width/2,
+                                      this.game.camera.y + this.game.height/2);
+
+    console.log("spawn "+spawnPoint);
+
+    var elemental = this.getFirstExists(false);
+    if(!elemental){
+
+        elemental = new Elemental(this.game,this.squad,spawnPoint.x,spawnPoint.y);
+        this.add(elemental);
+    }
+
+    elemental.revive();
+    elemental.reset(spawnPoint.x, spawnPoint.y);
+
+
+}
+
+
+module.exports = ElementalSpawner;
+
+},{"./elemental":3}],5:[function(require,module,exports){
 'use strict';
 
 
@@ -117,7 +280,7 @@ var Ranger = function(game, x, y, frame,squad,index) {
 
     this.members = null;
 
-    this.lagZone = 100;
+    this.lagZone = 30;
 
     this.stancePosRadius = 35;
 
@@ -333,7 +496,7 @@ Ranger.prototype.gunOffset = function(){
 
 module.exports = Ranger;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var Rock = function(game, x, y, frame) {
@@ -358,7 +521,7 @@ Rock.prototype.update = function() {
 
 module.exports = Rock;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var Ranger= require('./ranger');
@@ -397,7 +560,8 @@ Squad.prototype.constructor = Squad;
 
 Squad.prototype.update = function() {
 
-    this.body.velocity.x = this.body.velocity.y = 0;
+
+     this.body.velocity.x = this.body.velocity.y = 0;
 
     if(this.leftKey.isDown) {
         this.body.velocity.x = -this.moveSpeed;
@@ -411,6 +575,7 @@ Squad.prototype.update = function() {
     if(this.upKey.isDown) {
         this.body.velocity.y = -this.moveSpeed;
     }
+
 
     if (this.game.input.activePointer.isDown) {
         this.fire();
@@ -473,7 +638,24 @@ Squad.prototype.fire = function() {
 
         this.fireTimer = this.game.time.now + this.fireRate;
     }
-};
+}
+
+Squad.prototype.getClosestLiving = function(object){
+
+    var closest = this.members.getFirstAlive();
+    if(!closest)return null;
+
+    for(var ranger in this.members){
+        if(ranger.alive==false)returnl
+
+        var d1 = this.game.physics.arcade.distanceBetween(closest,object);
+        var d2 = this.game.physics.arcade.distanceBetween(ranger,object);
+
+        if(d2<d1)closest = ranger;
+    }
+
+    return closest;
+}
 
 Squad.prototype.createMembers = function(squadSize){
 
@@ -502,13 +684,15 @@ Squad.prototype.createMembers = function(squadSize){
 
 Squad.prototype.addRanger = function(){
     var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
+    ranger.alive = true;
+    ranger.revive();
     this.members.add(ranger);
     return ranger;
 }
 
 module.exports = Squad;
 
-},{"./bullet":2,"./ranger":4}],7:[function(require,module,exports){
+},{"./bullet":2,"./ranger":5}],8:[function(require,module,exports){
 
 'use strict';
 
@@ -532,7 +716,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -560,7 +744,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 function Intro() {
     this.logo = null;
@@ -599,7 +783,7 @@ Intro.prototype = {
 
 module.exports = Intro;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -633,7 +817,7 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 
   'use strict';
   function Play() {}
@@ -660,7 +844,7 @@ module.exports = Menu;
   };
   
   module.exports = Play;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
 'use strict';
 function Preload() {
@@ -705,13 +889,14 @@ Preload.prototype = {
 
 module.exports = Preload;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var Ranger = require('../prefabs/ranger');
 var Squad = require('../prefabs/squad');
 var Rock = require('../prefabs/rock');
 var Elemental = require('../prefabs/elemental');
+var ElementalSpawner = require('../prefabs/elementalSpawner');
 
 function Surface() {
     this.land = null;
@@ -747,7 +932,7 @@ Surface.prototype = {
         this.squad.createMembers();
 
         this.game.add.existing(this.squad);
-        this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_LOCKON);
+        this.game.camera.follow(this.squad,Phaser.Camera.FOLLOW_TOPDOWN);
 
         this.props = this.game.add.group();
 
@@ -764,8 +949,7 @@ Surface.prototype = {
 
         // ENEMIES
 
-        //var elemental = new Elemental(this.game,this.game.world.centerX,this.game.world.centerY);
-        //this.game.add.existing(elemental);
+        var elementalSpawner = new ElementalSpawner(this.game,this.squad);
 
 
         // CROSSHAIR
@@ -823,4 +1007,4 @@ Surface.prototype = {
 };
 
 module.exports = Surface;
-},{"../prefabs/elemental":3,"../prefabs/ranger":4,"../prefabs/rock":5,"../prefabs/squad":6}]},{},[1])
+},{"../prefabs/elemental":3,"../prefabs/elementalSpawner":4,"../prefabs/ranger":5,"../prefabs/rock":6,"../prefabs/squad":7}]},{},[1])

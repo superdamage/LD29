@@ -36,7 +36,8 @@ Squad.prototype.constructor = Squad;
 
 Squad.prototype.update = function() {
 
-    this.body.velocity.x = this.body.velocity.y = 0;
+
+     this.body.velocity.x = this.body.velocity.y = 0;
 
     if(this.leftKey.isDown) {
         this.body.velocity.x = -this.moveSpeed;
@@ -50,6 +51,7 @@ Squad.prototype.update = function() {
     if(this.upKey.isDown) {
         this.body.velocity.y = -this.moveSpeed;
     }
+
 
     if (this.game.input.activePointer.isDown) {
         this.fire();
@@ -112,7 +114,24 @@ Squad.prototype.fire = function() {
 
         this.fireTimer = this.game.time.now + this.fireRate;
     }
-};
+}
+
+Squad.prototype.getClosestLiving = function(object){
+
+    var closest = this.members.getFirstAlive();
+    if(!closest)return null;
+
+    for(var ranger in this.members){
+        if(ranger.alive==false)returnl
+
+        var d1 = this.game.physics.arcade.distanceBetween(closest,object);
+        var d2 = this.game.physics.arcade.distanceBetween(ranger,object);
+
+        if(d2<d1)closest = ranger;
+    }
+
+    return closest;
+}
 
 Squad.prototype.createMembers = function(squadSize){
 
@@ -141,6 +160,8 @@ Squad.prototype.createMembers = function(squadSize){
 
 Squad.prototype.addRanger = function(){
     var ranger = new Ranger(this.game,this.x,this.y,null,this,this.members.length);
+    ranger.alive = true;
+    ranger.revive();
     this.members.add(ranger);
     return ranger;
 }
